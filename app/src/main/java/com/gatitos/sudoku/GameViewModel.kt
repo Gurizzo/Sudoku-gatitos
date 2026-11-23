@@ -110,6 +110,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     fun tick() { if (status == Status.PLAYING && !loading) seconds++ }
 
+    internal fun solutionAt(i: Int) = solution[i]
+
     fun isWrong(i: Int) = board[i] != 0 && board[i] != solution[i]
 
     /** Cuántos gatitos de cada tipo están bien colocados. */

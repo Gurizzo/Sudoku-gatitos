@@ -36,6 +36,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 
 private fun vibrate(context: Context) {
     val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -247,7 +248,7 @@ fun Board(vm: GameViewModel, modifier: Modifier, shakeX: () -> Float = { 0f }) {
                             else -> Color.White
                         }
                         Box(
-                            Modifier.weight(1f).fillMaxHeight().background(bg).clickable { vm.select(i) }
+                            Modifier.weight(1f).fillMaxHeight().testTag("cell_$i").background(bg).clickable { vm.select(i) }
                                 .graphicsLayer { translationX = if (i == sel) shakeX() else 0f },
                             contentAlignment = Alignment.Center,
                         ) {
@@ -333,6 +334,7 @@ private fun Palette(vm: GameViewModel) {
             val done = left <= 0
             Column(
                 Modifier.weight(1f)
+                    .testTag("cat_$v")
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color.White)
                     .clickable(enabled = !done) { vm.input(v) }
