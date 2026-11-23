@@ -60,6 +60,34 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     private val undoStack = ArrayDeque<Move>()
 
+    var soundOn by mutableStateOf(prefs.getBoolean("sonido", true))
+        private set
+    var vibrationOn by mutableStateOf(prefs.getBoolean("vibracion", true))
+        private set
+    /** Último sonido que se pidió reproducir (lo usan las pruebas). */
+    var lastSound by mutableStateOf<CatSound?>(null)
+        private set
+
+    private val sounds = CatSounds(app)
+
+    private fun play(s: CatSound) {
+        if (!soundOn) return
+        lastSound = s
+        sounds.play(s)
+    }
+
+    override fun onCleared() = sounds.release()
+
+    fun toggleSound() {
+        soundOn = !soundOn
+        prefs.edit().putBoolean("sonido", soundOn).apply()
+    }
+
+    fun toggleVibration() {
+        vibrationOn = !vibrationOn
+        prefs.edit().putBoolean("vibracion", vibrationOn).apply()
+    }
+
     fun toggleNumbers() {
         showNumbers = !showNumbers
         prefs.edit().putBoolean("numeros", showNumbers).apply()
@@ -110,6 +138,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     fun tick() { if (status == Status.PLAYING && !loading) seconds++ }
 
+    internal fun solutionAt(i: Int) = solution[i]
+
     fun isWrong(i: Int) = board[i] != 0 && board[i] != solution[i]
 
     /** Cuántos gatitos de cada tipo están bien colocados. */
@@ -133,7 +163,12 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         if (v != solution[i]) {
             errorTick++
             mistakes++
-            if (mistakes >= MAX_MISTAKES) status = Status.LOST
+            if (mistakes >= MAX_MISTAKES) {
+                status = Status.LOST
+                play(CatSound.GRUNIDO)
+            } else {
+                play(CatSound.RONRONEO)
+            }
         } else {
             clearPeerNotes(i, v)
             checkWin()
@@ -196,6 +231,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     private fun checkWin() {
         if ((0 until 81).all { board[it] == solution[it] }) {
             status = Status.WON
+            play(CatSound.MAULLIDO)
             val best = bestTime(difficulty)
             if (best < 0 || seconds < best) {
                 newRecord = true

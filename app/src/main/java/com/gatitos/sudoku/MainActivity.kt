@@ -36,6 +36,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 
 private fun vibrate(context: Context) {
     val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -125,10 +126,17 @@ fun MenuScreen(vm: GameViewModel) {
         }
 
         Spacer(Modifier.height(20.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Mostrar números en los gatitos", color = Cafe, modifier = Modifier.weight(1f))
-            Switch(checked = vm.showNumbers, onCheckedChange = { vm.toggleNumbers() })
-        }
+        Option("🔢  Mostrar números en los gatitos", vm.showNumbers, "opcion_numeros", vm::toggleNumbers)
+        Option("🔊  Sonidos (ronroneo, gruñido, maullido)", vm.soundOn, "opcion_sonido", vm::toggleSound)
+        Option("📳  Vibrar al equivocarse", vm.vibrationOn, "opcion_vibracion", vm::toggleVibration)
+    }
+}
+
+@Composable
+private fun Option(label: String, checked: Boolean, tag: String, onToggle: () -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, color = Cafe, modifier = Modifier.weight(1f))
+        Switch(checked = checked, onCheckedChange = { onToggle() }, modifier = Modifier.testTag(tag))
     }
 }
 
@@ -155,7 +163,7 @@ fun GameScreen(vm: GameViewModel) {
     LaunchedEffect(vm.errorTick) {
         if (vm.errorTick == handledErrors) return@LaunchedEffect
         handledErrors = vm.errorTick
-        vibrate(context)
+        if (vm.vibrationOn) vibrate(context)
         for (x in listOf(22f, -22f, 16f, -16f, 8f, -8f, 0f)) shake.animateTo(x, tween(35))
     }
 
@@ -247,7 +255,7 @@ fun Board(vm: GameViewModel, modifier: Modifier, shakeX: () -> Float = { 0f }) {
                             else -> Color.White
                         }
                         Box(
-                            Modifier.weight(1f).fillMaxHeight().background(bg).clickable { vm.select(i) }
+                            Modifier.weight(1f).fillMaxHeight().testTag("cell_$i").background(bg).clickable { vm.select(i) }
                                 .graphicsLayer { translationX = if (i == sel) shakeX() else 0f },
                             contentAlignment = Alignment.Center,
                         ) {
@@ -333,6 +341,7 @@ private fun Palette(vm: GameViewModel) {
             val done = left <= 0
             Column(
                 Modifier.weight(1f)
+                    .testTag("cat_$v")
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color.White)
                     .clickable(enabled = !done) { vm.input(v) }
