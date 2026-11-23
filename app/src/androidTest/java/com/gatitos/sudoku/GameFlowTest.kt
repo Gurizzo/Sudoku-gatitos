@@ -62,7 +62,9 @@ class GameFlowTest {
     @Test
     fun menuMuestraLasCuatroDificultades() {
         Difficulty.entries.forEach { rule.onNodeWithText("${it.emoji}  ${it.label}").assertIsDisplayed() }
-        rule.onNodeWithText("Mostrar números en los gatitos").assertIsDisplayed()
+        rule.onNodeWithText("Mostrar números en los gatitos", substring = true).assertIsDisplayed()
+        rule.onNodeWithText("Sonidos", substring = true).assertIsDisplayed()
+        rule.onNodeWithText("Vibrar al equivocarse", substring = true).assertIsDisplayed()
         capture("01_menu")
     }
 
@@ -144,6 +146,7 @@ class GameFlowTest {
         assertTrue("marcado como error (se dibuja gris)", vm.isWrong(i))
         assertEquals(1, vm.mistakes)
         assertEquals("dispara vibración + sacudida", 1, vm.errorTick)
+        assertEquals("ronronea al perder una vida", CatSound.RONRONEO, vm.lastSound)
         capture("03_gatito_equivocado_gris")
 
         // Se puede corregir encima
@@ -154,6 +157,29 @@ class GameFlowTest {
     }
 
     @Test
+    fun sonidoYVibracionSePuedenDesactivar() {
+        assertTrue(vm.soundOn && vm.vibrationOn)
+        rule.onNodeWithTag("opcion_sonido").performClick()
+        rule.onNodeWithTag("opcion_vibracion").performClick()
+        rule.waitForIdle()
+        try {
+            assertFalse(vm.soundOn)
+            assertFalse(vm.vibrationOn)
+            capture("07_opciones_desactivadas")
+            startGame(Difficulty.FACIL)
+            val i = firstEmpty()
+            tapCell(i)
+            tapCat(wrongCats(i).first())
+            rule.waitForIdle()
+            assertEquals(1, vm.mistakes)
+            assertEquals("no suena nada", null, vm.lastSound)
+        } finally {
+            if (!vm.soundOn) vm.toggleSound()
+            if (!vm.vibrationOn) vm.toggleVibration()
+        }
+    }
+
+    @Test
     fun tresErroresMuestranDerrotaYSePuedeSeguir() {
         startGame(Difficulty.FACIL)
         val i = firstEmpty()
@@ -161,6 +187,7 @@ class GameFlowTest {
         wrongCats(i).take(3).forEach { tapCat(it) }
         rule.waitForIdle()
         assertEquals(Status.LOST, vm.status)
+        assertEquals("gruñe al perder", CatSound.GRUNIDO, vm.lastSound)
         rule.onNodeWithText("Ups… se acabaron las vidas").assertIsDisplayed()
         capture("04_sin_vidas")
 
@@ -209,6 +236,7 @@ class GameFlowTest {
         }
         rule.waitForIdle()
         assertEquals(Status.WON, vm.status)
+        assertEquals("maúlla al ganar", CatSound.MAULLIDO, vm.lastSound)
         rule.onNodeWithText("¡Miau! ¡Lo lograste!").assertIsDisplayed()
         capture("06_victoria")
 

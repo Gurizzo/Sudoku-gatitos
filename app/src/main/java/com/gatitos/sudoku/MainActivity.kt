@@ -126,10 +126,17 @@ fun MenuScreen(vm: GameViewModel) {
         }
 
         Spacer(Modifier.height(20.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Mostrar números en los gatitos", color = Cafe, modifier = Modifier.weight(1f))
-            Switch(checked = vm.showNumbers, onCheckedChange = { vm.toggleNumbers() })
-        }
+        Option("🔢  Mostrar números en los gatitos", vm.showNumbers, "opcion_numeros", vm::toggleNumbers)
+        Option("🔊  Sonidos (ronroneo, gruñido, maullido)", vm.soundOn, "opcion_sonido", vm::toggleSound)
+        Option("📳  Vibrar al equivocarse", vm.vibrationOn, "opcion_vibracion", vm::toggleVibration)
+    }
+}
+
+@Composable
+private fun Option(label: String, checked: Boolean, tag: String, onToggle: () -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, color = Cafe, modifier = Modifier.weight(1f))
+        Switch(checked = checked, onCheckedChange = { onToggle() }, modifier = Modifier.testTag(tag))
     }
 }
 
@@ -156,7 +163,7 @@ fun GameScreen(vm: GameViewModel) {
     LaunchedEffect(vm.errorTick) {
         if (vm.errorTick == handledErrors) return@LaunchedEffect
         handledErrors = vm.errorTick
-        vibrate(context)
+        if (vm.vibrationOn) vibrate(context)
         for (x in listOf(22f, -22f, 16f, -16f, 8f, -8f, 0f)) shake.animateTo(x, tween(35))
     }
 

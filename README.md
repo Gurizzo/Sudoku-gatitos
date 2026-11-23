@@ -11,6 +11,22 @@ Sudoku para Android **sin anuncios** donde, en vez de números, se juega con 9 g
 - Notas, deshacer, borrar y 3 pistas por partida.
 - Opción para mostrar el número en cada gatito.
 
+## Sonidos
+Grabaciones reales con licencia **CC0 (dominio público)** de Freesound, recortadas y normalizadas a OGG
+(`app/src/main/res/raw/`):
+
+| Archivo | Cuándo suena | Fuente |
+|---|---|---|
+| `ronroneo.ogg` | al perder una vida | [Cat purring — cubilon](https://freesound.org/people/cubilon/sounds/130968/) (tramo 17.5–19.5 s) |
+| `grunido.ogg` | al perder la partida | [angry cat.wav — patchytherat](https://freesound.org/people/patchytherat/sounds/532226/) (tramo 8.6–10.6 s) |
+| `maullido.ogg` | al ganar | [Cat Meow — Mafon2](https://freesound.org/people/Mafon2/sounds/436541/) |
+
+Se recortaron con:
+```
+ffmpeg -ss INICIO -t DURACION -i original.mp3 -af "aformat=channel_layouts=mono,loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:d=0.08,afade=t=out:st=FIN-0.3:d=0.3" -c:a libvorbis -q:a 4 salida.ogg
+```
+Sonidos y vibración se pueden desactivar desde el menú.
+
 ## Compilar
 Requiere el Android SDK (API 35) y JDK 17 o superior.
 
