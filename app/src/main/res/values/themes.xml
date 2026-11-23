@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.SudokuGatitos" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/fondo</item>
+        <item name="android:statusBarColor">@color/fondo</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+    <color name="fondo">#FFFFF6EE</color>
+    <color name="icono_fondo">#FFF8B7CD</color>
+</resources>
