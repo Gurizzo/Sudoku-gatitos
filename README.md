@@ -2,6 +2,22 @@
 
 Sudoku para Android **sin anuncios** donde, en vez de números, se juega con 9 gatitos distintos.
 
+## Demo
+
+**▶️ [Descargar e instalar la última versión (APK)](https://github.com/Gurizzo/Sudoku-gatitos/releases/latest)**: Android 8.0 o superior.
+
+<p align="center">
+  <img src="docs/demo.gif" alt="Partida de Sudoku Gatitos: elegir dificultad, colocar gatitos, un error en gris, notas, pista y victoria" width="320">
+</p>
+
+En el GIF: elegir la dificultad, colocar gatitos, un error (el teléfono vibra, la casilla se sacude y el gatito
+queda en gris), notas, una pista y ganar la partida.
+
+El GIF se graba en un celular con una prueba que juega sola (`DemoRecording`):
+```
+adb shell am instrument -w -e demo true -e class com.gatitos.sudoku.DemoRecording com.gatitos.sudoku.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
 ## Características
 - 4 dificultades: Fácil, Medio, Difícil y Experto, con récord de tiempo por nivel.
 - Cada partida es un tablero **aleatorio y siempre resoluble**:
